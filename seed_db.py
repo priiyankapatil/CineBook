@@ -1,9 +1,6 @@
 from datetime import datetime, timedelta
-from app import create_app
 from app.extensions import db
 from app.models import Movie, Theatre, Screen, Seat, Show, User, Review
-
-app = create_app()
 
 POSTER_URLS = {
     'The Matrix': 'https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg',
@@ -100,8 +97,11 @@ BASE_PRICES = {
 }
 
 
-def seed():
-    with app.app_context():
+def seed(app_instance=None):
+    if app_instance is None:
+        from app import create_app
+        app_instance = create_app()
+    with app_instance.app_context():
         db.create_all()
 
         if Movie.query.first():
@@ -168,4 +168,6 @@ def seed():
 
 
 if __name__ == '__main__':
-    seed()
+    from app import create_app
+    app = create_app()
+    seed(app)

@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from config import Config
 from app.extensions import db, login_manager, migrate
@@ -26,5 +27,17 @@ def create_app(config_class=Config):
     app.register_blueprint(movies_bp)
     app.register_blueprint(bookings_bp)
     app.register_blueprint(reviews_bp, url_prefix='/review')
+
+    with app.app_context():
+        db.create_all()
+        from app.models import Movie
+        if Movie.query.count() == 0:
+            from seed_db import seed
+            seed(app)
+            try:
+                from app.ml.recommender import train
+                train()
+            except Exception:
+                pass
 
     return app
