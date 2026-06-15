@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Booking Confirmed - CineBook{% endblock %}
+{% block content %}
+<div class="confirmation">
+    <div class="confirmation-header">
+        <h1>&#127881; Booking Confirmed!</h1>
+        <p>Booking #{{ booking.id }}</p>
+    </div>
+
+    <div class="ticket-details">
+        <p><strong>Movie:</strong> {{ booking.show.movie.title }}</p>
+        <p><strong>Theatre:</strong> {{ booking.show.theatre.name }} ({{ booking.show.theatre.location }})</p>
+        <p><strong>Screen:</strong> {{ booking.show.screen.screen_number }}</p>
+        <p><strong>Date & Time:</strong> {{ booking.show.show_time.strftime('%A, %b %d at %I:%M %p') }}</p>
+        <p><strong>Seats:</strong>
+            {% for bs in booking.booking_seats %}
+            <span class="ticket-seat-badge" style="display:inline-block;background:#6c63ff;color:#fff;padding:2px 8px;border-radius:4px;font-size:0.85rem;margin:2px;">
+                {{ bs.seat.seat_row }}{{ bs.seat.seat_number }}
+            </span>
+            {% endfor %}
+        </p>
+        <p><strong>Total Paid:</strong> &#8377;{{ '%.2f'|format(booking.total_amount) }}</p>
+        <p><strong>Status:</strong> <span class="status-{{ booking.status }}">{{ booking.status|capitalize }}</span></p>
+    </div>
+
+    <div class="confirmation-actions">
+        <a href="{{ url_for('bookings.ticket', booking_id=booking.id) }}" class="btn btn-primary btn-lg">&#127929; View E-Ticket</a>
+        <a href="{{ url_for('bookings.my_bookings') }}" class="btn btn-outline">My Bookings</a>
+        <a href="{{ url_for('movies.index') }}" class="btn btn-outline">Back to Movies</a>
+    </div>
+</div>
+{% endblock %}

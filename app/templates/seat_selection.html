@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Select Seats - CineBook{% endblock %}
+{% block content %}
+<div class="seat-selection">
+    <h1>Select Your Seats</h1>
+    <div class="show-info">
+        <p><strong>{{ show.movie.title }}</strong></p>
+        <p>{{ show.theatre.name }} | Screen {{ show.screen.screen_number }}</p>
+        <p>{{ show.show_time.strftime('%A, %b %d at %I:%M %p') }}</p>
+    </div>
+
+    <div class="screen-label">SCREEN</div>
+
+    <form method="POST" action="{{ url_for('bookings.confirm_booking', show_id=show.id) }}" id="seat-form">
+        <div class="seat-grid">
+            {% for row_label, seats_in_row in rows.items() %}
+            <div class="seat-row">
+                <span class="row-label">{{ row_label }}</span>
+                {% for seat in seats_in_row %}
+                <label class="seat {% if seat.is_booked %}booked{% endif %} {{ seat.seat_type }}"
+                       data-price="{{ '%.2f'|format(seat.dynamic_price) }}"
+                       data-seat-id="{{ seat.id }}">
+                    <input type="checkbox" name="seat_ids" value="{{ seat.id }}"
+                           {% if seat.is_booked %}disabled{% endif %}>
+                    <span class="seat-label">{{ seat.seat_number }}</span>
+                </label>
+                {% endfor %}
+                <span class="row-label">{{ row_label }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="seat-legend">
+            <span class="legend-item"><span class="seat sample available"></span> Available</span>
+            <span class="legend-item"><span class="seat sample selected"></span> Selected</span>
+            <span class="legend-item"><span class="seat sample booked"></span> Booked</span>
+            <span class="legend-item"><span class="seat sample vip"></span> VIP</span>
+            <span class="legend-item"><span class="seat sample recliner"></span> Recliner</span>
+        </div>
+
+        <div class="booking-summary">
+            <p>Selected: <span id="selected-count">0</span> seats</p>
+            <p>Total: &#8377;<span id="total-price">0.00</span></p>
+            <button type="submit" class="btn btn-primary btn-lg">Confirm Booking</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/booking.js') }}"></script>
+{% endblock %}

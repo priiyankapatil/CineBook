@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}My Bookings - CineBook{% endblock %}
+{% block content %}
+<h1>My Bookings</h1>
+
+{% if bookings %}
+<div class="bookings-list">
+    {% for booking in bookings %}
+    <div class="booking-card">
+        <div class="booking-header">
+            <h3>{{ booking.show.movie.title }}</h3>
+            <span class="status-{{ booking.status }}">{{ booking.status|capitalize }}</span>
+        </div>
+        <p>{{ booking.show.theatre.name }} ({{ booking.show.theatre.location }}) | {{ booking.show.show_time.strftime('%b %d, %Y at %I:%M %p') }}</p>
+        <p>Seats:
+            {% for bs in booking.booking_seats %}
+            <span class="ticket-seat-badge" style="display:inline-block;background:#6c63ff;color:#fff;padding:2px 8px;border-radius:4px;font-size:0.8rem;margin:1px;">
+                {{ bs.seat.seat_row }}{{ bs.seat.seat_number }}
+            </span>
+            {% endfor %}
+        </p>
+        <p>Total: &#8377;{{ '%.2f'|format(booking.total_amount) }}</p>
+        <div class="booking-actions">
+            <a href="{{ url_for('bookings.ticket', booking_id=booking.id) }}" class="btn btn-primary">&#127929; Ticket</a>
+            <a href="{{ url_for('bookings.confirmation', booking_id=booking.id) }}" class="btn btn-outline">View</a>
+            {% if booking.status == 'confirmed' and booking.show.show_time > utcnow %}
+            <form method="POST" action="{{ url_for('bookings.cancel_booking', booking_id=booking.id) }}" style="display:inline;">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Cancel this booking?')">Cancel</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>You have no bookings yet. <a href="{{ url_for('movies.index') }}">Browse movies</a> to get started!</p>
+{% endif %}
+{% endblock %}

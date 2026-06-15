@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket #{{ booking.id }} - CineBook</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            .ticket-container { box-shadow: none !important; border: 2px solid #333 !important; }
+            body { background: #fff !important; }
+        }
+        .ticket-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #1a1a3e;
+            border-radius: 12px;
+            border: 1px solid #2a2a5e;
+            overflow: hidden;
+        }
+        .ticket-header {
+            background: #6c63ff;
+            padding: 20px;
+            text-align: center;
+            color: #fff;
+        }
+        .ticket-header h1 { font-size: 1.5rem; margin-bottom: 4px; color: #fff; }
+        .ticket-header .brand { font-size: 0.9rem; opacity: 0.8; }
+        .ticket-body { padding: 24px; }
+        .ticket-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #2a2a5e;
+        }
+        .ticket-row:last-child { border-bottom: none; }
+        .ticket-label { color: #888; font-size: 0.85rem; }
+        .ticket-value { color: #fff; font-weight: 600; text-align: right; }
+        .ticket-seats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: flex-end;
+        }
+        .ticket-seat-badge {
+            background: #6c63ff;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .ticket-footer {
+            text-align: center;
+            padding: 16px;
+            border-top: 2px dashed #2a2a5e;
+        }
+        .ticket-footer .barcode {
+            font-family: 'Courier New', monospace;
+            font-size: 2rem;
+            letter-spacing: 6px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .ticket-footer small { color: #666; }
+        .ticket-actions { text-align: center; padding: 0 24px 24px; }
+        @media print {
+            .ticket-header { background: #6c63ff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .ticket-seat-badge { background: #6c63ff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket-container">
+        <div class="ticket-header">
+            <h1>&#127916; E-Ticket</h1>
+            <p class="brand">CineBook — Movie Ticket Booking</p>
+        </div>
+
+        <div class="ticket-body">
+            <div class="ticket-row">
+                <span class="ticket-label">Booking ID</span>
+                <span class="ticket-value">#{{ booking.id }}</span>
+            </div>
+            <div class="ticket-row">
+                <span class="ticket-label">Movie</span>
+                <span class="ticket-value">{{ booking.show.movie.title }}</span>
+            </div>
+            <div class="ticket-row">
+                <span class="ticket-label">Theatre</span>
+                <span class="ticket-value">{{ booking.show.theatre.name }}</span>
+            </div>
+            <div class="ticket-row">
+                <span class="ticket-label">Location</span>
+                <span class="ticket-value">{{ booking.show.theatre.location }}</span>
+            </div>
+            <div class="ticket-row">
+                <span class="ticket-label">Screen</span>
+                <span class="ticket-value">Screen {{ booking.show.screen.screen_number }}</span>
+            </div>
+            <div class="ticket-row">
+                <span class="ticket-label">Date</span>
+                <span class="ticket-value">{{ booking.show.show_time.strftime('%A, %b %d, %Y') }}</span>
+            </div>
+            <div class="ticket-row">
+                <span class="ticket-label">Time</span>
+                <span class="ticket-value">{{ booking.show.show_time.strftime('%I:%M %p') }}</span>
+            </div>
+            <div class="ticket-row">
+                <span class="ticket-label">Seats</span>
+                <div class="ticket-seats">
+                    {% for seat in seats %}
+                    <span class="ticket-seat-badge">{{ seat.seat_row }}{{ seat.seat_number }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="ticket-row">
+                <span class="ticket-label">Total Paid</span>
+                <span class="ticket-value">&#8377;{{ '%.2f'|format(booking.total_amount) }}</span>
+            </div>
+            <div class="ticket-row">
+                <span class="ticket-label">Status</span>
+                <span class="ticket-value status-{{ booking.status }}">{{ booking.status|capitalize }}</span>
+            </div>
+        </div>
+
+        <div class="ticket-footer">
+            <div class="barcode">||{{ booking.id|string }}||</div>
+            <small>Booking #{{ booking.id }} &bull; {{ booking.booking_time.strftime('%b %d, %Y %I:%M %p') }}</small>
+        </div>
+    </div>
+
+    <div class="ticket-actions no-print">
+        <button onclick="window.print()" class="btn btn-primary btn-lg">&#128424; Print Ticket</button>
+        <a href="{{ url_for('bookings.confirmation', booking_id=booking.id) }}" class="btn btn-outline">Back to Confirmation</a>
+        <a href="{{ url_for('bookings.my_bookings') }}" class="btn btn-outline">My Bookings</a>
+    </div>
+</body>
+</html>

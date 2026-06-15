@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Now Showing - CineBook{% endblock %}
+{% block content %}
+<section class="hero">
+    <h1>Welcome to CineBook</h1>
+    <p>Book tickets, discover movies, and get AI-powered recommendations.</p>
+</section>
+
+{% if recommendations and not search_query %}
+<section class="recommendations">
+    <h2>Recommended for You</h2>
+    <div class="movie-grid">
+        {% for rec in recommendations %}
+        <a href="{{ url_for('movies.detail', movie_id=rec.local_id) if rec.local_id else '#' }}" class="movie-card">
+            {% if rec.poster_url %}
+            <img src="{{ rec.poster_url }}" alt="{{ rec.title }}" class="movie-poster"
+                 onerror="this.style.display='none'">
+            {% endif %}
+            <div class="movie-card-body">
+                <h3>{{ rec.title }}</h3>
+                {% if rec.genre %}
+                <p class="movie-genre">{{ rec.genre }}</p>
+                {% endif %}
+                <span class="rec-score">&#9733; Recommended</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if search_query %}
+<section class="search-results-header">
+    <h2>Search results for "{{ search_query }}"</h2>
+    {% if movies %}
+    <p>{{ movies|length }} movie{% if movies|length != 1 %}s{% endif %} found</p>
+    {% endif %}
+</section>
+{% endif %}
+
+{% if not search_query %}
+<section class="filters">
+    <h2>Now Showing</h2>
+    <div class="genre-filters">
+        <a href="{{ url_for('movies.index') }}"
+           class="btn {% if not selected_genre %}btn-primary{% else %}btn-outline{% endif %}">All</a>
+        {% for genre in genres %}
+        <a href="{{ url_for('movies.index', genre=genre) }}"
+           class="btn {% if selected_genre == genre %}btn-primary{% else %}btn-outline{% endif %}">{{ genre }}</a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<div class="movie-grid">
+    {% for movie in movies %}
+    <a href="{{ url_for('movies.detail', movie_id=movie.id) }}" class="movie-card">
+        {% if movie.poster_url %}
+        <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" class="movie-poster"
+             onerror="this.style.display='none'">
+        {% endif %}
+        <div class="movie-card-body">
+            <h3>{{ movie.title }}</h3>
+            <p class="movie-genre">{{ movie.genre }}</p>
+            {% if movie.director %}
+            <p class="movie-director">{{ movie.director }}</p>
+            {% endif %}
+            <span class="movie-rating">{{ "%.1f"|format(movie.avg_rating) if movie.avg_rating else 'N/A' }}</span>
+        </div>
+    </a>
+    {% else %}
+    <div class="empty-state">
+        {% if search_query %}
+        <p>No movies found matching "{{ search_query }}". Try a different search term.</p>
+        {% else %}
+        <p>No movies available.</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
