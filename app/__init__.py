@@ -34,10 +34,15 @@ def create_app(config_class=Config):
         if Movie.query.count() == 0:
             from seed_db import seed
             seed(app)
-            try:
-                from app.ml.recommender import train
-                train()
-            except Exception:
-                pass
+
+    @app.route('/api/train')
+    def train_recommender():
+        from app.ml.recommender import train
+        from flask import jsonify
+        try:
+            train()
+            return jsonify({'status': 'ok', 'message': 'Recommender trained'})
+        except Exception as e:
+            return jsonify({'status': 'error', 'message': str(e)}), 500
 
     return app
