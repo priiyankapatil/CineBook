@@ -5,20 +5,40 @@ Uses TextBlob (which uses NLTK's VADER lexicon under the hood).
 No training needed — it's a pre-trained rule-based model.
 
 Returns a float between -1.0 (very negative) and +1.0 (very positive).
+Handles read-only filesystems (e.g. Vercel serverless) gracefully.
 """
 
-from textblob import TextBlob
+import os
 import nltk
+from textblob import TextBlob
 
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt', quiet=True)
+def _ensure_nltk_resource(resource_id, download_name=None):
+    if download_name is None:
+        download_name = resource_id
+    try:
+        nltk.data.find(resource_id)
+        return
+    except LookupError:
+        pass
+    try:
+        nltk.download(download_name, quiet=True)
+        return
+    except OSError:
+        pass
+    alt_path = os.path.join('/tmp', 'nltk_data')
+    nltk.data.path.insert(0, alt_path)
+    try:
+        nltk.data.find(resource_id)
+        return
+    except LookupError:
+        pass
+    try:
+        nltk.download(download_name, download_dir=alt_path, quiet=True)
+    except OSError:
+        pass
 
-try:
-    nltk.data.find('corpora/wordnet')
-except LookupError:
-    nltk.download('wordnet', quiet=True)
+_ensure_nltk_resource('tokenizers/punkt', 'punkt')
+_ensure_nltk_resource('corpora/wordnet', 'wordnet')
 
 
 def analyze_sentiment(text):
