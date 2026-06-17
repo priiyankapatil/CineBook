@@ -29,11 +29,14 @@ def create_app(config_class=Config):
     app.register_blueprint(reviews_bp, url_prefix='/review')
 
     with app.app_context():
-        db.create_all()
-        from app.models import Movie
-        if Movie.query.count() == 0:
-            from seed_db import seed
-            seed(app)
+        try:
+            db.create_all()
+            from app.models import Movie
+            if Movie.query.count() == 0:
+                from seed_db import seed
+                seed(app)
+        except Exception:
+            pass
 
     @app.route('/api/train')
     def train_recommender():
