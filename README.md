@@ -30,7 +30,8 @@ pip install -r requirements.txt
 python run.py
 ```
 
-Visit **http://127.0.0.1:5000**
+- **Live demo:** [https://cine-book-e42q.vercel.app](https://cine-book-e42q.vercel.app)
+- **Local:** [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
 **Demo account:** `demo` / `password`
 
